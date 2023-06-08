@@ -41,19 +41,26 @@ resource "aws_db_instance" "db_instance" {
   engine_version          = "13.7"
   multi_az                = false
   identifier              = "dev-rds-instance"
-  username                = "temporary_user"
-  password                = "temporary_password"
+  username                = var.username
+  password                = var.password
   instance_class          = "db.t3.micro"
   allocated_storage       = "200"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
   availability_zone       = data.aws_availability_zones.available_zones.names[0]
-  db_name                 = "videotrendingdb"
+  db_name                 = var.db_name
   publicly_accessible     = true
   skip_final_snapshot     = true
 }
 
-# save endpoint to db
-resource "local_file" "private_key" {
-    content  = "${aws_db_instance.db_instance.endpoint}"
-    filename = "private_key.txt"
+# outputs for lambda function
+output "db_endpoint" {
+  value = "${aws_db_instance.db_instance.endpoint}"
+}
+
+output "username" {
+  value = var.username
+}
+
+output "password" {
+  value = var.password
 }
