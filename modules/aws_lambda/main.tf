@@ -30,16 +30,26 @@ resource "aws_iam_policy" "iam_policy_for_lambda" {
  description  = "AWS IAM Policy for managing aws lambda role"
  policy = <<EOF
 {
+
  "Version": "2012-10-17",
  "Statement": [
    {
      "Action": [
-       "logs:CreateLogGroup",
-       "logs:CreateLogStream",
-       "logs:PutLogEvents"
+       "rds:*"
      ],
-     "Resource": "arn:aws:logs:*:*:*",
+     "Resource": "arn:aws:rds:::*",
      "Effect": "Allow"
+   },
+   {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:CreateNetworkInterface",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeInstances",
+        "ec2:AttachNetworkInterface"
+      ],
+      "Resource": "*"
    },
    {
      "Action": [
@@ -73,12 +83,19 @@ function_name                  = "Test_Lambda_Function"
 role                           = aws_iam_role.lambda_role.arn
 handler                        = "index.lambda_handler"
 runtime                        = "python3.8"
+source_code_hash               = "${data.archive_file.zip_the_python_code.output_base64sha256}"
 depends_on                     = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
+vpc_config {
+ security_group_ids = var.SECURITY_GROUP_IDS
+ subnet_ids = var.SUBNET_IDS
+}
 environment {
  variables = {
   DB_endpoint = var.DB_endpoint
   username = var.username
   password = var.password
+  host = var.host
+  port = var.port
    }
   }
 }
