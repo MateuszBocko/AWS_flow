@@ -53,7 +53,7 @@ resource "aws_iam_policy" "iam_policy_for_lambda" {
    },
    {
      "Action": [
-       "s3:GetObject"
+       "s3:*"
      ],
      "Resource": "arn:aws:s3:::*",
      "Effect": "Allow"
@@ -91,14 +91,27 @@ vpc_config {
 }
 environment {
  variables = {
+  DB_name = var.db_name
   DB_endpoint = var.DB_endpoint
   username = var.username
   password = var.password
   host = var.host
   port = var.port
+  s3_bucket_name = var.s3_bucket_name
    }
   }
 }
+
+# Create lambda layer
+resource "aws_lambda_layer_version" "lambda_layer" {
+  filename   = "${path.module}/layer/pandas_numpy.zip"
+  layer_name = "pandas_numpy_layer"
+
+  compatible_runtimes = ["python3.8"]
+}
+
+
+
 #
 ## Adding S3 bucket as trigger to my lambda and giving the permissions
 #resource "aws_s3_bucket_notification" "aws-lambda-trigger" {

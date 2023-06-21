@@ -126,6 +126,10 @@ output "SECURITY_GROUP_IDS" {
   value     = [aws_security_group.lambda_sg.id]
 }
 
+output "db_name" {
+  value     = var.db_name
+}
+
 output "hostname" {
   description = "RDS instance hostname"
   value       = aws_db_instance.db_instance.address
